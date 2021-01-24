@@ -1,47 +1,11 @@
 ---
-name: Echo Topic
-route: /examples/simple_echo/
-menu: Examples
+name: Echo A Topic
+route: /simple_echo
 ---
 
-## Getting Started
+## Simple Echo
 
-Throughout these examples we will assume you've already gone through the process of installing [ROS](http://wiki.ros.org/noetic/Installation/Ubuntu) or [ROS2](https://index.ros.org/doc/ros2/Installation/Foxy/) and have a [ROS websocket server](https://github.com/RobotWebTools/rosbridge_suite) running and available to connect with.
-
-The first step in connecting ROS with a website will always be establishing a connection. With `react-ros`, we make this easy by providing a very simple and easy-to-use context provider called `useROS` to get you started.
-
-## Connect to ROS
-
-Here is an example of how you can use the `useROS` component and connect your website to your robot!  In this example we provide a `ToggleConnect` component that uses the `useROS` context provider to quickly and easily integrate ROS into any button or status indicator you could want to use.
-
-```javascript
-import React from 'react'
-import { useROS } from '../ROS'
-
-function ToggleConnect() {
-  const { isConnected, topics, url, changeUrl, toggleConnection } = useROS();
-
-  return (
-    <div>
-      <p>
-        <b>Simple connect:  </b><button onClick={ toggleConnection }>Toggle Connect</button>  <br />
-        <b>ROS url input:  </b><input name="urlInput" defaultValue={ url } onChange={event => changeUrl(event.target.value)} />  <br />
-        <b>ROS url to connect to:  </b> {url}  <br />
-        <b>Status of ROS:</b> { isConnected ? "connected" : "not connected" }   <br />
-        <b>Topics detected:</b><br />
-        { topics.map((topic, i) => <li key={i}>    {topic.path}</li> )}
-      </p>
-    </div>
-  );
-}
-
-export default ToggleConnect;
-```
-
-## ToggleConnect in use
-To use the simple `ToggleConnect` component we made above, wrap it in the provided `ROS` context provider component from `react-ros` and everything should just work. Go ahead and try it live below on your robot!
-
-Here is a simple echo example that prints out messages on a specific topic to the console:
+Building on the previous `ToggleConnect` example, here is a simple echo example that prints out messages on a specific topic to the console:
 
 ```javascript
 // EchoTopic.js
@@ -136,9 +100,4 @@ import EchoTopic from './EchoTopic'
     <EchoTopic />
   </ROS>
 </Playground>
-
-
-## Subscribe to a topic
-
-Taking the toggle example even further - once connected, you should be able to subscribe to a topic and print out messages as they are received.
 

@@ -1,0 +1,76 @@
+---
+name: Getting Started
+route: /first_component
+---
+
+## Getting Started
+
+Throughout these examples we will assume you've already gone through the process of installing [ROS](http://wiki.ros.org/noetic/Installation/Ubuntu) or [ROS2](https://index.ros.org/doc/ros2/Installation/Foxy/) and have a [ROS websocket server](https://github.com/RobotWebTools/rosbridge_suite) running and available to connect with.
+
+The first step in connecting ROS with a website will always be establishing a connection. With `react-ros`, we make this easy by providing a very simple and easy-to-use context provider called `useROS` to get you started.
+
+## Connect to ROS
+
+Here is an example of how you can use the `useROS` component and connect your website to your robot!  In this example we provide a `ToggleConnect` component that uses the `useROS` context provider to quickly and easily integrate ROS into any button or status indicator you could want to use.
+
+```javascript
+import React, { useEffect } from 'react'
+import { useROS } from '../ROS'
+
+function ToggleConnect() {
+  const { isConnected, topics, url, changeUrl, toggleConnection, toggleAutoconnect} = useROS();
+
+  // Try replacing this with your own unique rosbridge webserver address
+  const defaultURL = "ws://0.0.0.0:9090";
+	
+  // only runs once when ToggleConnect is first rendered (mounted)
+  useEffect(() => {
+    console.log('ToggleConnect is mounted!');
+    if (url !== defaultURL) {
+      changeUrl(defaultURL);
+    }
+
+    // use autoconnect if you want to automatically connect to your ROS websocket when this component mounts!
+    if (!isConnected) {
+      toggleAutoconnect();
+    }
+  },[])
+    
+  // runs every time there is an update to any state/rerender
+  useEffect(() => {
+    //console.log('rerender ToggleConnect');
+    if (urlInput !== url) {
+      changeUrl(urlInput);
+    }
+  })
+
+  return (
+    <div>
+      <p>
+        <b>Simple connect:  </b><button onClick={ toggleConnection }>Toggle Connect</button>  <br />
+        <b>ROS url input:  </b><input name="urlInput" defaultValue={ url } onChange={event => changeUrl(event.target.value)} />  <br />
+        <b>ROS url to connect to:  </b> {url}  <br />
+        <b>Status of ROS:</b> { isConnected ? "connected" : "not connected" }   <br />
+      </p>
+    </div>
+  );
+}
+
+export default ToggleConnect;
+```
+
+## ToggleConnect in use
+To use the simple `ToggleConnect` component we made above, wrap it in the provided `ROS` context provider component from `react-ros` and everything should just work. Go ahead and try it live below on your robot!
+
+import { Playground } from 'docz'
+import { ROS } from '../ROS'
+
+import ToggleConnect from './ToggleConnect'
+import EchoTopic from './EchoTopic'
+
+<Playground>
+  <ROS>
+    <ToggleConnect />
+  </ROS>
+</Playground>
+
