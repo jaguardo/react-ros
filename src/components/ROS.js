@@ -10,7 +10,7 @@ function useROS() {
 
   useEffect(() => {
     if (!ros.isConnected) {
-      if(ros.autoconnect) {
+      if (ros.autoconnect) {
         console.log('autoconnecting');
         handleConnect();
       }
@@ -18,7 +18,7 @@ function useROS() {
   })
 
   function checkConnection() {
-    if (ros.ROS){
+    if (ros.ROS) {
       if (ros.isConnected) {
         if (!ros.ROSConfirmedConnected && ros.ROS.isConnected) {
           setROS(ros => ({ ...ros, ROSConfirmedConnected: ros.ROS.isConnected }))
@@ -34,11 +34,10 @@ function useROS() {
         }
       }
     }
-    else{
+    else {
       console.log("Initial connection not established yet")
     }
   }
-
 
   function toggleConnection() {
     if (ros.isConnected) {
@@ -55,15 +54,15 @@ function useROS() {
       setROS(ros => ({ ...ros, autoconnect: true }));
     }
   }
-  
+
   function changeUrl(new_url) {
     setROS(ros => ({ ...ros, url: new_url }));
   }
 
   function getTopics() {
     const topicsPromise = new Promise((resolve, reject) => {
-        ros.ROS.getTopics((topics) => {
-          const topicList = topics.topics.map((topicName, i) => {
+      ros.ROS.getTopics((topics) => {
+        const topicList = topics.topics.map((topicName, i) => {
           return {
             path: topicName,
             msgType: topics.types[i],
@@ -73,22 +72,22 @@ function useROS() {
         resolve({
           topics: topicList
         });
-	reject({
+        reject({
           topics: []
-	});
+        });
       }, (message) => {
         console.error("Failed to get topic", message)
       });
     });
-    topicsPromise.then( (topics) => setROS(ros => ({ ...ros, topics: topics.topics })));
+    topicsPromise.then((topics) => setROS(ros => ({ ...ros, topics: topics.topics })));
     return ros.topics;
   }
 
   function createListener(topic, msg_type, to_queue, compression_type) {
     var newListener = new ROSLIB.Topic({
-      ros : ros.ROS,
-      name : topic,
-      messageType : msg_type,
+      ros: ros.ROS,
+      name: topic,
+      messageType: msg_type,
       queue_length: to_queue,
       compression: compression_type,
     })
@@ -106,18 +105,15 @@ function useROS() {
 
   const handleConnect = () => {
     try {
-        ros.ROS = new ROSLIB.Ros({
-        url : ros.url,
-      });
-      // Attempt Connection
-      if (ros.ROS) ros.ROS.on('connection', () => {
-        setROS(ros => ({ ...ros, isConnected: true}));  // seems to take awhile for the roslibjs library to report connected
-        
-        setROS(ros => ({ ...ros, ROSConfirmedConnected: false  }));
+      ros.ROS.connect(ros.url)
+      ros.ROS.on('connection', (connect) => {
+        // console.log(connect)
+        setROS(ros => ({ ...ros, isConnected: true }));  // seems to take awhile for the roslibjs library to report connected
+        setROS(ros => ({ ...ros, ROSConfirmedConnected: false }));
         getTopics();
       })
 
-      if (ros.ROS) ros.ROS.on('error', (error) => {
+      ros.ROS.on('error', (error) => {  //gets a little annoying on the console, but probably ok for now
         console.log(error);
       })
     } catch (e) {
@@ -137,25 +133,25 @@ function useROS() {
     }
     console.log('Disconnected');
   }
-  
-const removeAllListeners = () =>{
-  for(var mlistener in ros.listeners){
-    ros.listeners[mlistener].removeAllListeners();
-  }
-  setROS(ros => ({ ...ros, listeners: [] }));
-}
 
-function removeListener (listener){
-  for(var mlistener in ros.listeners){
-    if(listener.name === ros.listeners[mlistener].name){
-      console.log('Listener: ' + listener.name + ' is removed')
-      ros.listeners.splice(mlistener,1)
-      listener.removeAllListeners();
-      return
+  const removeAllListeners = () => {
+    for (var mlistener in ros.listeners) {
+      ros.listeners[mlistener].removeAllListeners();
     }
+    setROS(ros => ({ ...ros, listeners: [] }));
   }
-  console.log('Listener: ' + listener + ' is not a listener')
-}
+
+  function removeListener(listener) {
+    for (var mlistener in ros.listeners) {
+      if (listener.name === ros.listeners[mlistener].name) {
+        console.log('Listener: ' + listener.name + ' is removed')
+        ros.listeners.splice(mlistener, 1)
+        listener.removeAllListeners();
+        return
+      }
+    }
+    console.log('Listener: ' + listener + ' is not a listener')
+  }
 
   return {
     toggleConnection,
