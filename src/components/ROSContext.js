@@ -9,6 +9,7 @@ const rosObj = {
   ROSConfirmedConnected: false,
   autoconnect: false,
   topics: [],
+  services:[],
   listeners: [],
 }
 
